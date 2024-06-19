@@ -21,9 +21,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <ChakraProvider>
-      <RouterProvider router={appRouter}>
-        <App />
-      </RouterProvider>
+      <RouterProvider router={appRouter}></RouterProvider>
     </ChakraProvider>
   </React.StrictMode>
 );
