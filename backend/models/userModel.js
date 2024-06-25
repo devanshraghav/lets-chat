@@ -4,12 +4,13 @@
 // profilepic
 
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 // User Schema
-const userModel = mongoose.Schema(
+const userSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     pofilepic: {
       type: String,
@@ -22,8 +23,23 @@ const userModel = mongoose.Schema(
   }
 );
 
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// const salt = bcrypt.genSaltSync(10);
+
 // User Model
 
-const User = mongoose.Model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
