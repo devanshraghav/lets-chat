@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // Using Router
-app.use("/api/chat", userRoutes);
+app.use("/api/user", userRoutes);
 
 // app.get("/api/chat", (req, res) => {
 //   res.send(chats);

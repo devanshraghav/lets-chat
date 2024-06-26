@@ -6,8 +6,11 @@ import {
   InputGroup,
   InputRightElement,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [name, setName] = useState();
@@ -16,17 +19,66 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState();
   const [pic, setPic] = useState();
   const [show, setShow] = useState(false);
+  const [loading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const navigate = useNavigate();
 
   const handlePassword = () => setShow(!show);
 
   const PostDetails = (pics) => {};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      toast({
+        title: "Please fill all the details!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords doesn't match",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          "content-type": "application/json",
+        },
+      };
+      const data = await axios.post(
+        "/api/user",
+        { name, email, password, pic },
+        config
+      );
+      toast({
+        title: "Registration Successfull",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setIsLoading(false);
+
+      navigate("/chats");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <VStack spacing='5px'>
+    <VStack spacing="5px">
       <FormControl id="first-name" isRequired>
         <FormLabel>Name</FormLabel>
         <Input
@@ -64,7 +116,7 @@ const Signup = () => {
         <InputGroup>
           <Input
             placeholder="Confirm Password"
-            type="password"
+            type={show ? "text" : "password"}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <InputRightElement w="4.5rem">
@@ -89,6 +141,7 @@ const Signup = () => {
         colorScheme="blue"
         width="100%"
         style={{ marginTop: 15 }}
+        isLoading={loading}
         onClick={handleSubmit}
       >
         Submit
